@@ -4,62 +4,219 @@ title: "Post Soviet Population in Sarasota"
 
 ## Residents born in post-Soviet countries
 
-The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate's margin of error (MOE), so small changes should be interpreted cautiously.
+The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Hover over a point for its estimate and margin of error (MOE). Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.
 
 ```{r}
 #| label: birthplace-data
 #| message: false
+#| echo: false
 
 library(tidyverse)
-library(tidycensus)
+library(plotly)
 
-post_soviet_countries <- c(
-  "Armenia", "Azerbaijan", "Belarus", "Georgia", "Kazakhstan",
-  "Latvia", "Lithuania", "Moldova", "Russia", "Ukraine", "Uzbekistan"
+birthplace_estimates <- read_csv(
+  "data/birthplace_estimates.csv",
+  show_col_types = FALSE
 )
 
-years <- c(2013, 2018, 2023)
+years <- sort(unique(birthplace_estimates$year))
 
-birthplace_estimates <- map_dfr(years, \(year) {
-  country_variables <- load_variables(year, "acs5") |>
-    filter(
-      str_detect(name, "^B05006_[0-9]{3}$"),
-      str_detect(
-        label,
-        str_c("!!(", str_c(post_soviet_countries, collapse = "|"), ")$")
-      )
-    ) |>
-    select(name, label)
+country_regions <- tribble(
+  ~country, ~region,
+  "Latvia", "Baltic States",
+  "Lithuania", "Baltic States",
+  "Estonia", "Baltic States",
+  "Belarus", "Eastern Europe",
+  "Moldova", "Eastern Europe",
+  "Russia", "Eastern Europe",
+  "Ukraine", "Eastern Europe",
+  "Armenia", "Caucasus",
+  "Azerbaijan", "Caucasus",
+  "Georgia", "Caucasus",
+  "Kazakhstan", "Central Asia",
+  "Kyrgyzstan", "Central Asia",
+  "Tajikistan", "Central Asia",
+  "Turkmenistan", "Central Asia",
+  "Uzbekistan", "Central Asia"
+)
 
-  get_acs(
-    geography = "county",
-    state = "FL",
-    county = "Sarasota",
-    variables = country_variables$name,
-    year = year,
-    survey = "acs5"
+country_series <- birthplace_estimates |>
+  mutate(series = country, series_type = "Country")
+
+region_series <- birthplace_estimates |>
+  inner_join(country_regions, by = "country") |>
+  group_by(region, year) |>
+  summarise(
+    estimate = sum(estimate),
+    moe = sqrt(sum(moe^2)),
+    coverage = n_distinct(country),
+    .groups = "drop"
   ) |>
-    left_join(country_variables, by = c("variable" = "name")) |>
-    mutate(
-      country = str_extract(label, "[^!]+$"),
-      year = year
-    )
-})
-
-ggplot(birthplace_estimates, aes(x = year, y = estimate)) +
-  geom_line() +
-  geom_point() +
-  geom_errorbar(
-    aes(ymin = pmax(0, estimate - moe), ymax = estimate + moe),
-    width = 0.2
-  ) +
-  facet_wrap(vars(country), scales = "free_y") +
-  scale_x_continuous(breaks = years) +
-  scale_y_continuous(labels = scales::label_comma()) +
-  labs(
-    title = "Estimated Sarasota County residents born in former Soviet republics",
-    x = "ACS five-year period ending",
-    y = "Estimated residents (error bars = margin of error)",
-    caption = "Source: U.S. Census Bureau, ACS five-year estimates, table B05006."
+  mutate(
+    series = paste(region, "Region"),
+    series_type = "Region"
   )
+
+plot_data <- bind_rows(country_series, region_series)
+series_names <- unique(plot_data$series)
+initial_series <- c("Ukraine", "Russia", "Baltic States Region")
+
+birthplace_plot <- plot_ly()
+
+for (series_name in series_names) {
+  series_data <- plot_data |>
+    filter(series == series_name)
+
+  hover_text <- if (first(series_data$series_type) == "Region") {
+    paste0(
+      "<b>", series_name, "</b><br>",
+      "ACS period ending: ", series_data$year, "<br>",
+      "Estimated residents: ", scales::comma(series_data$estimate), "<br>",
+      "Margin of error: ±", scales::comma(series_data$moe), "<br>",
+      "Countries reported: ", series_data$coverage
+    )
+  } else {
+    paste0(
+      "<b>", series_name, "</b><br>",
+      "ACS period ending: ", series_data$year, "<br>",
+      "Estimated residents: ", scales::comma(series_data$estimate), "<br>",
+      "Margin of error: ±", scales::comma(series_data$moe)
+    )
+  }
+
+  birthplace_plot <- add_trace(
+    birthplace_plot,
+    data = series_data,
+    x = ~year,
+    y = ~estimate,
+    type = "scatter",
+    mode = "lines+markers",
+    name = series_name,
+    text = hover_text,
+    hovertemplate = "%{text}<extra></extra>",
+    error_y = list(
+      type = "data",
+      array = series_data$moe,
+      visible = TRUE
+    ),
+    visible = if (series_name %in% initial_series) TRUE else "legendonly"
+  )
+}
+
+birthplace_plot <- birthplace_plot |>
+  layout(
+    title = "Sarasota County residents born in former Soviet countries",
+    xaxis = list(title = "ACS five-year period ending", tickmode = "array",
+                 tickvals = years),
+    yaxis = list(title = "Estimated residents", separatethousands = TRUE),
+    legend = list(title = list(text = "Country or region")),
+    margin = list(b = 120),
+    height = 600
+  ) |>
+  config(displayModeBar = FALSE, responsive = TRUE) |>
+  htmlwidgets::onRender(
+    "function(el, x) {
+      var selector = document.getElementById('birthplace-series');
+      var status = document.getElementById('birthplace-status');
+      var errorButton = document.getElementById('birthplace-errors');
+      var initial = ['Ukraine', 'Russia', 'Baltic States Region'];
+      var current = initial.slice();
+      var showErrors = true;
+
+      Array.from(selector.options).forEach(function(option) {
+        option.selected = initial.includes(option.value);
+      });
+
+      function updateStatus(message) {
+        status.textContent = message;
+      }
+
+      function syncSelector() {
+        current = el.data
+          .filter(function(trace) {
+            return trace.visible !== 'legendonly' && trace.visible !== false;
+          })
+          .map(function(trace) { return trace.name; });
+        Array.from(selector.options).forEach(function(option) {
+          option.selected = current.includes(option.value);
+        });
+        updateStatus('Showing ' + current.length + ' of 3 allowed selections.');
+      }
+
+      selector.addEventListener('change', function() {
+        var selected = Array.from(selector.selectedOptions)
+          .map(function(option) { return option.value; });
+        if (selected.length > 3) {
+          Array.from(selector.options).forEach(function(option) {
+            option.selected = current.includes(option.value);
+          });
+          updateStatus('Choose no more than three countries or regions.');
+          return;
+        }
+        current = selected;
+        Plotly.restyle(el, {
+          visible: el.data.map(function(trace) {
+            return selected.includes(trace.name) ? true : 'legendonly';
+          })
+        });
+        updateStatus('Showing ' + selected.length + ' of 3 allowed selections.');
+      });
+
+      errorButton.addEventListener('click', function() {
+        showErrors = !showErrors;
+        Plotly.restyle(el, {'error_y.visible': showErrors});
+        errorButton.textContent = showErrors ? 'Hide error bars' : 'Show error bars';
+      });
+
+      el.on('plotly_legendclick', function(event) {
+        var trace = el.data[event.curveNumber];
+        var isVisible = trace.visible !== 'legendonly' && trace.visible !== false;
+        var visibleCount = el.data.filter(function(item) {
+          return item.visible !== 'legendonly' && item.visible !== false;
+        }).length;
+        if (!isVisible && visibleCount >= 3) {
+          updateStatus('Choose no more than three countries or regions.');
+          return false;
+        }
+        setTimeout(syncSelector, 0);
+      });
+
+      updateStatus('Showing ' + current.length + ' of 3 allowed selections.');
+    }"
+  )
+
+htmltools::tagList(
+  htmltools::tags$label(
+    `for` = "birthplace-series",
+    "Choose up to three countries or regions (Ctrl/Cmd-click to select multiple):"
+  ),
+  htmltools::tags$select(
+    id = "birthplace-series",
+    multiple = "multiple",
+    size = "6",
+    htmltools::tags$optgroup(
+      label = "Countries",
+      lapply(sort(unique(birthplace_estimates$country)), \(country) {
+        htmltools::tags$option(value = country, country)
+      })
+    ),
+    htmltools::tags$optgroup(
+      label = "Regions",
+      lapply(sort(unique(region_series$series)), \(region) {
+        htmltools::tags$option(value = region, region)
+      })
+    )
+  ),
+  htmltools::tags$button(
+    id = "birthplace-errors",
+    type = "button",
+    "Hide error bars"
+  ),
+  htmltools::tags$p(
+    id = "birthplace-status",
+    role = "status",
+    "Showing 3 of 3 allowed selections."
+  ),
+  birthplace_plot
+)
 ```
