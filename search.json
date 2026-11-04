@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Post Soviet Population in Sarasota",
     "section": "",
-    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously."
+    "text": "The Census Bureau’s B05006 table reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Hover over a point for its estimate and margin of error (MOE). Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.\n\n\nWarning: Specifying width/height in layout() is now deprecated.\nPlease specify in ggplotly() or plot_ly()\n\n\nChoose up to three countries or regions (Ctrl/Cmd-click to select multiple):\n\n\nArmenia\nAzerbaijan\nBelarus\nGeorgia\nKazakhstan\nLatvia\nLithuania\nMoldova\nRussia\nUkraine\nUzbekistan\n\n\nBaltic States Region\nCaucasus Region\nCentral Asia Region\nEastern Europe Region\n\n\nHide error bars\nShowing 3 of 3 allowed selections."
   },
   {
     "objectID": "index.html#residents-born-in-post-soviet-countries",
     "href": "index.html#residents-born-in-post-soviet-countries",
     "title": "Post Soviet Population in Sarasota",
     "section": "",
-    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously."
+    "text": "The Census Bureau’s B05006 table reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Hover over a point for its estimate and margin of error (MOE). Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.\n\n\nWarning: Specifying width/height in layout() is now deprecated.\nPlease specify in ggplotly() or plot_ly()\n\n\nChoose up to three countries or regions (Ctrl/Cmd-click to select multiple):\n\n\nArmenia\nAzerbaijan\nBelarus\nGeorgia\nKazakhstan\nLatvia\nLithuania\nMoldova\nRussia\nUkraine\nUzbekistan\n\n\nBaltic States Region\nCaucasus Region\nCentral Asia Region\nEastern Europe Region\n\n\nHide error bars\nShowing 3 of 3 allowed selections."
   },
   {
     "objectID": "about.html",
