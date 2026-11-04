@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Post Soviet Population in Sarasota",
     "section": "",
-    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously.\nTo download updated estimates, run Rscript download_birthplace_data.R from the project directory. The chart below reads the saved CSV and does not download data during rendering."
+    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously."
   },
   {
     "objectID": "index.html#residents-born-in-post-soviet-countries",
     "href": "index.html#residents-born-in-post-soviet-countries",
     "title": "Post Soviet Population in Sarasota",
     "section": "",
-    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously.\nTo download updated estimates, run Rscript download_birthplace_data.R from the project directory. The chart below reads the saved CSV and does not download data during rendering."
+    "text": "The Census Bureau’s B05006 table reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate’s margin of error (MOE), so small changes should be interpreted cautiously."
   },
   {
     "objectID": "about.html",
