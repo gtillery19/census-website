@@ -1,0 +1,65 @@
+---
+title: "Post Soviet Population in Sarasota"
+---
+
+## Residents born in post-Soviet countries
+
+The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports the birthplace of the foreign-born population, not ethnicity or ancestry. The chart compares Sarasota County estimates from three non-overlapping American Community Survey (ACS) five-year periods. It includes countries with a separate B05006 category; some former Soviet republics are not listed separately. Error bars show each estimate's margin of error (MOE), so small changes should be interpreted cautiously.
+
+```{r}
+#| label: birthplace-data
+#| message: false
+
+library(tidyverse)
+library(tidycensus)
+
+post_soviet_countries <- c(
+  "Armenia", "Azerbaijan", "Belarus", "Georgia", "Kazakhstan",
+  "Latvia", "Lithuania", "Moldova", "Russia", "Ukraine", "Uzbekistan"
+)
+
+years <- c(2013, 2018, 2023)
+
+birthplace_estimates <- map_dfr(years, \(year) {
+  country_variables <- load_variables(year, "acs5") |>
+    filter(
+      str_detect(name, "^B05006_[0-9]{3}$"),
+      str_detect(
+        label,
+        str_c("!!(", str_c(post_soviet_countries, collapse = "|"), ")$")
+      )
+    ) |>
+    select(name, label)
+
+  get_acs(
+    geography = "county",
+    state = "FL",
+    county = "Sarasota",
+    variables = country_variables$name,
+    year = year,
+    survey = "acs5"
+  ) |>
+    left_join(country_variables, by = c("variable" = "name")) |>
+    mutate(
+      country = str_extract(label, "[^!]+$"),
+      year = year
+    )
+})
+
+ggplot(birthplace_estimates, aes(x = year, y = estimate)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = pmax(0, estimate - moe), ymax = estimate + moe),
+    width = 0.2
+  ) +
+  facet_wrap(vars(country), scales = "free_y") +
+  scale_x_continuous(breaks = years) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    title = "Estimated Sarasota County residents born in former Soviet republics",
+    x = "ACS five-year period ending",
+    y = "Estimated residents (error bars = margin of error)",
+    caption = "Source: U.S. Census Bureau, ACS five-year estimates, table B05006."
+  )
+```
