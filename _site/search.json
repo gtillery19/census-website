@@ -2,22 +2,78 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Post Soviet Population in Sarasota",
+    "title": "Post-Soviet Birthplaces in Sarasota County",
     "section": "",
-    "text": "The Census Bureau’s B05006 table reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Use Show all countries to compare every country in one graph. Hover over a point for its estimate and margin of error (MOE). Annual ACS five-year estimates overlap, so adjacent points share much of the same data and should not be read as independent yearly counts. Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.\n\n\nChoose up to three countries or regions (Ctrl/Cmd-click to select multiple):\n\n\nArmenia\nAzerbaijan\nBelarus\nGeorgia\nKazakhstan\nLatvia\nLithuania\nMoldova\nRussia\nUkraine\nUzbekistan\n\n\nBaltic States Region\nCaucasus Region\nCentral Asia Region\nEastern Europe Region\n\n\nShow all countries\nHide error bars\nShowing 3 of 3 allowed selections."
+    "text": "PLACE OF BIRTH · SARASOTA COUNTY, FLORIDA\n\n\nA local look at birthplace estimates for the former Soviet republics.\n“Sarasota Bay” by Ryan Hodnett, CC BY-SA 4.0.\nForeign-born population\n5,143\nSum of 11 reported estimates in 2024 · approx. ±760\n\n\nBirthplaces represented\n11 of 15\nSeparate estimates in 2024\n\n\nLargest reported birthplace\nUkraine\n2,366 estimated residents\n\n\nMost recent ACS period\n2024\nFive-year estimate ending in this year"
   },
   {
-    "objectID": "index.html#residents-born-in-post-soviet-countries",
-    "href": "index.html#residents-born-in-post-soviet-countries",
-    "title": "Post Soviet Population in Sarasota",
-    "section": "",
-    "text": "The Census Bureau’s B05006 table reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Use Show all countries to compare every country in one graph. Hover over a point for its estimate and margin of error (MOE). Annual ACS five-year estimates overlap, so adjacent points share much of the same data and should not be read as independent yearly counts. Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.\n\n\nChoose up to three countries or regions (Ctrl/Cmd-click to select multiple):\n\n\nArmenia\nAzerbaijan\nBelarus\nGeorgia\nKazakhstan\nLatvia\nLithuania\nMoldova\nRussia\nUkraine\nUzbekistan\n\n\nBaltic States Region\nCaucasus Region\nCentral Asia Region\nEastern Europe Region\n\n\nShow all countries\nHide error bars\nShowing 3 of 3 allowed selections."
+    "objectID": "index.html#birthplace-estimates-over-time",
+    "href": "index.html#birthplace-estimates-over-time",
+    "title": "Post-Soviet Birthplaces in Sarasota County",
+    "section": "Birthplace estimates over time",
+    "text": "Birthplace estimates over time\nChoose up to three republics in the list, or use the legend. Azerbaijan and Georgia have separate estimates starting in 2022; Estonia, Kyrgyzstan, Tajikistan, and Turkmenistan are not separately reported. Unavailable countries remain listed but disabled. Missing estimates are never treated as zero. Neighboring ACS five-year periods overlap.\n\n\n\nChoose up to three countries (Ctrl/Cmd-click to select multiple):\n\nArmenia\nAzerbaijan\nBelarus\nEstonia (not separately reported)\nGeorgia\nKazakhstan\nKyrgyzstan (not separately reported)\nLatvia\nLithuania\nMoldova\nRussia\nTajikistan (not separately reported)\nTurkmenistan (not separately reported)\nUkraine\nUzbekistan\n\nShow all reported countries\nHide error bars\nShowing 3 of 3 allowed selections."
+  },
+  {
+    "objectID": "index.html#regional-comparison",
+    "href": "index.html#regional-comparison",
+    "title": "Post-Soviet Birthplaces in Sarasota County",
+    "section": "Regional comparison",
+    "text": "Regional comparison\nRegions are project-defined groupings, not Census categories. The chart adds only countries with separate birthplace estimates in each period; coverage in the hover text makes partial totals visible. Older estimates therefore may cover fewer countries than newer ones.\n\n\n\n\n\n\n\n\n\n\n\n\n\nProject-defined region\nIncluded republics\n\n\n\n\nEastern Europe\nBelarus, Moldova, Russia, Ukraine\n\n\nCentral Asia\nKazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan, Uzbekistan\n\n\nCaucasus\nArmenia, Azerbaijan, Georgia\n\n\nBaltics\nEstonia, Latvia, Lithuania\n\n\n\nRegional margins of error are approximate combinations of the reported country margins; see About for details."
+  },
+  {
+    "objectID": "index.html#estimated-population-change",
+    "href": "index.html#estimated-population-change",
+    "title": "Post-Soviet Birthplaces in Sarasota County",
+    "section": "Estimated population change",
+    "text": "Estimated population change\nThe chart compares each country’s earliest and latest available estimate. Bars show estimated change; whiskers show an approximate margin of error for the difference. Changes within or near the whiskers are especially uncertain. Even changes outside them are not definitive significance tests because ACS five-year periods overlap."
   },
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "About this project",
     "section": "",
-    "text": "About this site"
+    "text": "The Soviet Union dissolved in 1991 into 15 independent republics with distinct languages, cultures, and histories. This project focuses on those birthplaces to explore one small, local part of that larger story: what public Census data can tell us about Sarasota County residents born in those places. “Post-Soviet” is a historical and geographic description, not a single identity or migration experience."
+  },
+  {
+    "objectID": "about.html#why-look-at-post-soviet-birthplaces",
+    "href": "about.html#why-look-at-post-soviet-birthplaces",
+    "title": "About this project",
+    "section": "",
+    "text": "The Soviet Union dissolved in 1991 into 15 independent republics with distinct languages, cultures, and histories. This project focuses on those birthplaces to explore one small, local part of that larger story: what public Census data can tell us about Sarasota County residents born in those places. “Post-Soviet” is a historical and geographic description, not a single identity or migration experience."
+  },
+  {
+    "objectID": "about.html#what-the-census-measures",
+    "href": "about.html#what-the-census-measures",
+    "title": "About this project",
+    "section": "What the Census measures",
+    "text": "What the Census measures\nThe chart uses the Census Bureau’s American Community Survey (ACS) five-year estimates for Sarasota County, Florida, from the B05006 place-of-birth table. The table estimates the foreign-born population by place of birth. It does not measure ancestry, ethnicity, language, immigration status, or how a person identifies.\nEach plotted value is an estimate for an ACS five-year period ending in the year shown. For example, 2024 is the 2020–2024 ACS five-year estimate, not a count taken only in 2024. Adjacent five-year periods overlap substantially and are not independent snapshots."
+  },
+  {
+    "objectID": "about.html#country-availability-and-regional-groupings",
+    "href": "about.html#country-availability-and-regional-groupings",
+    "title": "About this project",
+    "section": "Country availability and regional groupings",
+    "text": "Country availability and regional groupings\nThe dashboard lists all 15 former Soviet republics. The ACS does not publish separate estimates for all of them in every period. In the data used here, Azerbaijan and Georgia have separate estimates starting in 2022; Estonia, Kyrgyzstan, Tajikistan, and Turkmenistan are not separately reported. Missing estimates are left blank, never treated as zero.\nThe regional comparison uses these project-defined groupings:\n\n\n\n\n\n\n\nRegion\nIncluded republics\n\n\n\n\nEastern Europe\nBelarus, Moldova, Russia, Ukraine\n\n\nCentral Asia\nKazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan, Uzbekistan\n\n\nCaucasus\nArmenia, Azerbaijan, Georgia\n\n\nBaltics\nEstonia, Latvia, Lithuania\n\n\n\nThese are groupings for this dashboard, not Census regions. Each period’s regional total includes only member countries with a separate estimate in that period. Hover over a regional line to see how many countries were reported. The combined regional margin of error is approximated by the square root of the sum of squared country margins of error, which assumes independent country estimates; it is not an official Census regional estimate."
+  },
+  {
+    "objectID": "about.html#comparing-changes-and-uncertainty",
+    "href": "about.html#comparing-changes-and-uncertainty",
+    "title": "About this project",
+    "section": "Comparing changes and uncertainty",
+    "text": "Comparing changes and uncertainty\nFor each country with at least two reported periods, the change chart subtracts its earliest available estimate from its latest available estimate. The plotted change margin of error is approximated as:\nsqrt(earliest-period MOE^2 + latest-period MOE^2)\nThis approximation treats the endpoint estimates as independent. They are not fully independent when the ACS five-year periods overlap, and the chart does not have the covariance information needed for a formal significance test. Error bars are a reminder of uncertainty, not a guarantee that a change is real or statistically significant. Small estimates can also have large margins of error.\nThe total summary card is a sum of the separately reported country estimates for the latest period. It covers only the countries with separate estimates in that period; it is not a complete count for all 15 republics. Its margin of error is also an approximate combination, not an official published total."
+  },
+  {
+    "objectID": "about.html#what-these-data-cannot-tell-us",
+    "href": "about.html#what-these-data-cannot-tell-us",
+    "title": "About this project",
+    "section": "What these data cannot tell us",
+    "text": "What these data cannot tell us\nBirthplace estimates do not show U.S.-born descendants, individual migration histories, reasons for moving, refugee or other immigration pathways, community ties, or identity. A place-of-birth category may include people with very different experiences. An estimate of zero is not proof that no residents were born in that place; interpret it alongside its margin of error. These county-level estimates describe a population, not any one person."
+  },
+  {
+    "objectID": "about.html#sources",
+    "href": "about.html#sources",
+    "title": "About this project",
+    "section": "Sources",
+    "text": "Sources\n\nU.S. Census Bureau, ACS table B05006: Place of Birth for the Foreign-Born Population.\nU.S. Census Bureau, Understanding and Using ACS Data.\nUnited Nations Statistics Division, Standard country or area codes for statistical use (M49), a reference for geographic groupings. The four dashboard groupings above are defined for this project.\nPhoto: “Sarasota Bay” by Ryan Hodnett, CC BY-SA 4.0."
   }
 ]

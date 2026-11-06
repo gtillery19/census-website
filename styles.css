@@ -1,1 +1,211 @@
-/* css styles */
+body {
+  color: #173c45;
+  background: #f4f8f6;
+}
+
+.hero-banner {
+  position: relative;
+  display: flex;
+  min-height: clamp(20rem, 36vw, 30rem);
+  align-items: flex-end;
+  margin: 1.5rem 0 0;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #17464e;
+  box-shadow: 0 0.8rem 2rem rgb(18 63 70 / 18%);
+}
+
+.hero-banner::after {
+  position: absolute;
+  inset: 20% 0 0;
+  background: linear-gradient(transparent, rgb(5 29 36 / 78%));
+  content: "";
+  pointer-events: none;
+}
+
+.hero-banner > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 48rem;
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  color: #fff;
+}
+
+.hero-copy .eyebrow {
+  margin-bottom: 0.5rem;
+  color: #c7e9df;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  text-shadow: 0 1px 5px rgb(0 0 0 / 35%);
+}
+
+.hero-copy p:last-child {
+  margin: 0.6rem 0 0;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.photo-credit {
+  margin: 0.6rem 0 1.5rem;
+  color: #526b70;
+  font-size: 0.8rem;
+}
+
+.context-panel {
+  margin: 1rem 0 2rem;
+  padding: 1rem 1.3rem;
+  border-left: 4px solid #168b85;
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: #e7f2ef;
+}
+
+.context-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.metric-card {
+  display: flex;
+  min-height: 9rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid #dce8e3;
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 0.35rem 1rem rgb(18 63 70 / 6%);
+}
+
+.metric-card-accent {
+  border-color: #b7ddd1;
+  background: #e7f2ef;
+}
+
+.metric-label {
+  color: #526b70;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.metric-card strong {
+  color: #155e62;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.metric-note {
+  color: #60777a;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.chart-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+  padding: 1rem;
+  border: 1px solid #d5e4df;
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: #fff;
+}
+
+#birthplace-series {
+  min-width: 13rem;
+  border-color: #b7cfca;
+  border-radius: 0.4rem;
+}
+
+#birthplace-all-countries,
+#birthplace-errors {
+  padding: 0.5rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #176f70;
+}
+
+#birthplace-all-countries:hover,
+#birthplace-errors:hover {
+  background: #105455;
+}
+
+#birthplace-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: #526b70;
+  font-size: 0.9rem;
+}
+
+main table {
+  width: 100%;
+  margin: 1.25rem 0 0.5rem;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+main table th,
+main table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dce8e3;
+  text-align: left;
+  vertical-align: top;
+}
+
+main table thead th {
+  color: #155e62;
+  background: #e7f2ef;
+}
+
+@media (max-width: 850px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-banner {
+    min-height: 19rem;
+  }
+
+  .metric-grid {
+    gap: 0.65rem;
+  }
+
+  .metric-card {
+    min-height: 8.5rem;
+    padding: 0.85rem;
+  }
+
+  .chart-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  main table th,
+  main table td {
+    padding: 0.6rem 0.5rem;
+  }
+}

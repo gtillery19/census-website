@@ -1,15 +1,25 @@
 ---
-title: "Post Soviet Population in Sarasota"
+title: "Post-Soviet Birthplaces in Sarasota County"
 ---
 
-## Residents born in post-Soviet countries
+<div class="hero-banner">
+<img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Sarasota_Bay_-_Sarasota%2C_Florida_2023-01-23_%2801%29.jpg/1280px-Sarasota_Bay_-_Sarasota%2C_Florida_2023-01-23_%2801%29.jpg" alt="Sarasota Bay on Florida's Gulf Coast">
+<div class="hero-copy">
+<p class="eyebrow">PLACE OF BIRTH · SARASOTA COUNTY, FLORIDA</p>
+<p class="hero-subtitle">A local look at birthplace estimates for the former Soviet republics.</p>
+</div>
+</div>
 
-The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Use **Show all countries** to compare every country in one graph. Hover over a point for its estimate and margin of error (MOE). Annual ACS five-year estimates overlap, so adjacent points share much of the same data and should not be read as independent yearly counts. Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.
+<p class="photo-credit"><a href="https://commons.wikimedia.org/wiki/File:Sarasota_Bay_-_Sarasota,_Florida_2023-01-23_(01).jpg">“Sarasota Bay” by Ryan Hodnett</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>
+
+::: {.context-panel}
+“Post-Soviet” describes a shared historical context, not one ethnicity, language, or migration story. The Census Bureau's American Community Survey reports birthplace for foreign-born residents, not ancestry or identity. This dashboard is one small window into Sarasota County's communities; it cannot tell us why anyone moved or how they identify.
+:::
 
 ```{r}
-#| label: birthplace-data
+#| label: prepare-data
+#| include: false
 #| message: false
-#| echo: false
 
 library(tidyverse)
 library(plotly)
@@ -19,98 +29,168 @@ birthplace_estimates <- read_csv(
   show_col_types = FALSE
 )
 
-years <- sort(unique(birthplace_estimates$year))
-
-country_regions <- tribble(
-  ~country, ~region,
-  "Latvia", "Baltic States",
-  "Lithuania", "Baltic States",
-  "Estonia", "Baltic States",
-  "Belarus", "Eastern Europe",
-  "Moldova", "Eastern Europe",
-  "Russia", "Eastern Europe",
-  "Ukraine", "Eastern Europe",
-  "Armenia", "Caucasus",
-  "Azerbaijan", "Caucasus",
-  "Georgia", "Caucasus",
-  "Kazakhstan", "Central Asia",
-  "Kyrgyzstan", "Central Asia",
-  "Tajikistan", "Central Asia",
-  "Turkmenistan", "Central Asia",
-  "Uzbekistan", "Central Asia"
+post_soviet_countries <- c(
+  "Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
+  "Kazakhstan", "Kyrgyzstan", "Latvia", "Lithuania", "Moldova",
+  "Russia", "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"
 )
 
-country_series <- birthplace_estimates |>
-  mutate(series = country, series_type = "Country")
+region_definitions <- tribble(
+  ~region, ~country,
+  "Eastern Europe", "Belarus",
+  "Eastern Europe", "Moldova",
+  "Eastern Europe", "Russia",
+  "Eastern Europe", "Ukraine",
+  "Central Asia", "Kazakhstan",
+  "Central Asia", "Kyrgyzstan",
+  "Central Asia", "Tajikistan",
+  "Central Asia", "Turkmenistan",
+  "Central Asia", "Uzbekistan",
+  "Caucasus", "Armenia",
+  "Caucasus", "Azerbaijan",
+  "Caucasus", "Georgia",
+  "Baltics", "Estonia",
+  "Baltics", "Latvia",
+  "Baltics", "Lithuania"
+)
 
-region_series <- birthplace_estimates |>
-  inner_join(country_regions, by = "country") |>
+years <- sort(unique(birthplace_estimates$year))
+latest_year <- max(years)
+
+country_series <- expand_grid(
+  country = post_soviet_countries,
+  year = years
+) |>
+  left_join(birthplace_estimates, by = c("country", "year")) |>
+  mutate(series = country)
+
+available_countries <- unique(birthplace_estimates$country)
+
+latest_data <- country_series |>
+  filter(year == latest_year, !is.na(estimate)) |>
+  arrange(desc(estimate))
+
+if (nrow(latest_data) == 0) {
+  stop("No birthplace estimates are available for the latest ACS period.")
+}
+
+latest_total <- sum(latest_data$estimate)
+latest_total_moe <- sqrt(sum(latest_data$moe^2))
+largest_country <- first(latest_data$country)
+largest_estimate <- first(latest_data$estimate)
+represented_countries <- nrow(latest_data)
+
+regional_series <- country_series |>
+  inner_join(region_definitions, by = "country") |>
+  mutate(
+    has_estimate = !is.na(estimate),
+    estimate_for_region = coalesce(estimate, 0),
+    moe_for_region = coalesce(moe, 0)
+  ) |>
   group_by(region, year) |>
   summarise(
-    estimate = sum(estimate),
-    moe = sqrt(sum(moe^2)),
-    coverage = n_distinct(country),
+    estimate = if (any(has_estimate)) {
+      sum(estimate_for_region)
+    } else {
+      NA_real_
+    },
+    moe = if (any(has_estimate)) {
+      sqrt(sum(moe_for_region^2))
+    } else {
+      NA_real_
+    },
+    reported = sum(has_estimate),
+    members = n(),
+    included_countries = paste(country[has_estimate], collapse = ", "),
     .groups = "drop"
-  ) |>
-  mutate(
-    series = paste(region, "Region"),
-    series_type = "Region"
   )
 
-plot_data <- bind_rows(country_series, region_series)
-series_names <- unique(plot_data$series)
-initial_series <- c("Ukraine", "Russia", "Baltic States Region")
+regional_latest <- regional_series |>
+  filter(year == latest_year) |>
+  arrange(match(region, c("Eastern Europe", "Central Asia", "Caucasus", "Baltics")))
 
-birthplace_plot <- plot_ly(height = 600)
-
-for (series_name in series_names) {
-  series_data <- plot_data |>
-    filter(series == series_name)
-
-  hover_text <- if (first(series_data$series_type) == "Region") {
-    paste0(
-      "<b>", series_name, "</b><br>",
-      "ACS period ending: ", series_data$year, "<br>",
-      "Estimated residents: ", scales::comma(series_data$estimate), "<br>",
-      "Margin of error: ±", scales::comma(series_data$moe), "<br>",
-      "Countries reported: ", series_data$coverage
+change_data <- country_series |>
+  filter(!is.na(estimate)) |>
+  arrange(country, year) |>
+  group_by(country) |>
+  summarise(
+    first_year = first(year),
+    last_year = last(year),
+    first_estimate = first(estimate),
+    last_estimate = last(estimate),
+    first_moe = first(moe),
+    last_moe = last(moe),
+    .groups = "drop"
+  ) |>
+  filter(first_year < last_year) |>
+  mutate(
+    change = last_estimate - first_estimate,
+    change_moe = sqrt(first_moe^2 + last_moe^2),
+    change_text = paste0(
+      "<b>", country, "</b><br>",
+      first_year, " estimate: ", scales::comma(first_estimate),
+      " (±", scales::comma(first_moe), ")<br>",
+      last_year, " estimate: ", scales::comma(last_estimate),
+      " (±", scales::comma(last_moe), ")<br>",
+      "Estimated change: ", scales::comma(change),
+      "<br>Approximate change MOE: ±", scales::comma(change_moe)
     )
-  } else {
+  ) |>
+  arrange(desc(abs(change)))
+
+country_plot <- plot_ly(height = 530)
+initial_countries <- c("Ukraine", "Russia", "Lithuania")
+
+for (country_name in post_soviet_countries) {
+  series_data <- country_series |>
+    filter(country == country_name)
+
+  hover_text <- ifelse(
+    is.na(series_data$estimate),
     paste0(
-      "<b>", series_name, "</b><br>",
+      "<b>", country_name, "</b><br>",
+      "ACS period ending: ", series_data$year, "<br>",
+      "No separate estimate reported"
+    ),
+    paste0(
+      "<b>", country_name, "</b><br>",
       "ACS period ending: ", series_data$year, "<br>",
       "Estimated residents: ", scales::comma(series_data$estimate), "<br>",
       "Margin of error: ±", scales::comma(series_data$moe)
     )
-  }
+  )
 
-  birthplace_plot <- add_trace(
-    birthplace_plot,
+  country_plot <- add_trace(
+    country_plot,
     data = series_data,
     x = ~year,
     y = ~estimate,
     type = "scatter",
     mode = "lines+markers",
-    name = series_name,
+    name = country_name,
     text = hover_text,
     hovertemplate = "%{text}<extra></extra>",
+    showlegend = any(!is.na(series_data$estimate)),
     error_y = list(
       type = "data",
       array = series_data$moe,
       visible = TRUE
     ),
-    visible = if (series_name %in% initial_series) TRUE else "legendonly"
+    visible = if (country_name %in% initial_countries) TRUE else "legendonly"
   )
 }
 
-birthplace_plot <- birthplace_plot |>
+country_plot <- country_plot |>
   layout(
-    title = "Sarasota County residents born in former Soviet countries",
-    xaxis = list(title = "ACS five-year period ending", tickmode = "array",
-                 tickvals = years),
+    title = "Estimated residents by birthplace",
+    xaxis = list(
+      title = "ACS five-year period ending",
+      tickmode = "array",
+      tickvals = years
+    ),
     yaxis = list(title = "Estimated residents", separatethousands = TRUE),
-    legend = list(title = list(text = "Country or region")),
-    margin = list(b = 120)
+    legend = list(title = list(text = "Country of birth")),
+    margin = list(b = 100)
   ) |>
   config(displayModeBar = FALSE, responsive = TRUE) |>
   htmlwidgets::onRender(
@@ -119,12 +199,11 @@ birthplace_plot <- birthplace_plot |>
       var status = document.getElementById('birthplace-status');
       var errorButton = document.getElementById('birthplace-errors');
       var allCountriesButton = document.getElementById('birthplace-all-countries');
-      var initial = ['Ukraine', 'Russia', 'Baltic States Region'];
+      var initial = ['Ukraine', 'Russia', 'Lithuania'];
       var current = initial.slice();
       var savedSelection = initial.slice();
-      var allCountryNames = Array.from(
-        selector.querySelector('#birthplace-country-options').querySelectorAll('option')
-      ).map(function(option) { return option.value; });
+      var allCountryNames = Array.from(selector.options)
+        .map(function(option) { return option.value; });
       var showingAllCountries = false;
       var showErrors = true;
 
@@ -141,8 +220,7 @@ birthplace_plot <- birthplace_plot |>
           return allCountryNames.includes(trace.name) &&
             trace.visible !== 'legendonly' && trace.visible !== false;
         }).length;
-        updateStatus('Showing ' + visibleCountries + ' of ' +
-          allCountryNames.length + ' countries.');
+        updateStatus('Showing ' + visibleCountries + ' reported countries.');
       }
 
       function syncSelector() {
@@ -164,7 +242,7 @@ birthplace_plot <- birthplace_plot |>
           Array.from(selector.options).forEach(function(option) {
             option.selected = current.includes(option.value);
           });
-          updateStatus('Choose no more than three countries or regions.');
+          updateStatus('Choose no more than three countries.');
           return;
         }
         current = selected;
@@ -189,7 +267,7 @@ birthplace_plot <- birthplace_plot |>
           return item.visible !== 'legendonly' && item.visible !== false;
         }).length;
         if (!showingAllCountries && !isVisible && visibleCount >= 3) {
-          updateStatus('Choose no more than three countries or regions.');
+          updateStatus('Choose no more than three countries.');
           return false;
         }
         setTimeout(showingAllCountries ? updateAllCountriesStatus : syncSelector, 0);
@@ -199,7 +277,7 @@ birthplace_plot <- birthplace_plot |>
         if (showingAllCountries) {
           showingAllCountries = false;
           selector.disabled = false;
-          allCountriesButton.textContent = 'Show all countries';
+          allCountriesButton.textContent = 'Show all reported countries';
           current = savedSelection.slice();
           Array.from(selector.options).forEach(function(option) {
             option.selected = current.includes(option.value);
@@ -216,9 +294,9 @@ birthplace_plot <- birthplace_plot |>
         savedSelection = current.slice();
         showingAllCountries = true;
         selector.disabled = true;
-        allCountriesButton.textContent = 'Show selected countries/regions';
+        allCountriesButton.textContent = 'Show selected countries';
         Array.from(selector.options).forEach(function(option) {
-          option.selected = allCountryNames.includes(option.value);
+          option.selected = !option.disabled;
         });
         Plotly.restyle(el, {
           visible: el.data.map(function(trace) {
@@ -232,44 +310,197 @@ birthplace_plot <- birthplace_plot |>
     }"
   )
 
-htmltools::tagList(
-  htmltools::tags$label(
-    `for` = "birthplace-series",
-    "Choose up to three countries or regions (Ctrl/Cmd-click to select multiple):"
+regional_plot <- plot_ly(height = 420)
+
+for (region_name in regional_latest$region) {
+  region_data <- regional_series |>
+    filter(region == region_name) |>
+    arrange(year)
+
+  region_hover <- paste0(
+    "<b>", region_name, "</b><br>",
+    "ACS period ending: ", region_data$year, "<br>",
+    "Reported countries: ", region_data$reported, " of ", region_data$members,
+    "<br>Estimated residents: ", scales::comma(region_data$estimate),
+    "<br>Approximate margin of error: ±", scales::comma(region_data$moe)
+  )
+
+  regional_plot <- add_trace(
+    regional_plot,
+    data = region_data,
+    x = ~year,
+    y = ~estimate,
+    type = "scatter",
+    mode = "lines+markers",
+    name = region_name,
+    text = region_hover,
+    hovertemplate = "%{text}<extra></extra>",
+    error_y = list(type = "data", array = region_data$moe, visible = TRUE)
+  )
+}
+
+regional_plot <- regional_plot |>
+  layout(
+    title = "Reported birthplace estimates by region",
+    xaxis = list(title = "ACS five-year period ending", tickvals = years),
+    yaxis = list(title = "Estimated residents", separatethousands = TRUE),
+    legend = list(title = list(text = "Project-defined region")),
+    margin = list(b = 80)
+  ) |>
+  config(displayModeBar = FALSE, responsive = TRUE)
+
+change_plot <- plot_ly(
+  data = change_data,
+  x = ~change,
+  y = ~reorder(country, abs(change)),
+  type = "bar",
+  orientation = "h",
+  text = ~change_text,
+  hovertemplate = "%{text}<extra></extra>",
+  marker = list(
+    color = ifelse(change_data$change >= 0, "#168b85", "#d27a55")
   ),
-  htmltools::tags$select(
-    id = "birthplace-series",
-    multiple = "multiple",
-    size = "6",
-    htmltools::tags$optgroup(
-      id = "birthplace-country-options",
-      label = "Countries",
-      lapply(sort(unique(birthplace_estimates$country)), \(country) {
-        htmltools::tags$option(value = country, country)
-      })
-    ),
-    htmltools::tags$optgroup(
-      label = "Regions",
-      lapply(sort(unique(region_series$series)), \(region) {
-        htmltools::tags$option(value = region, region)
-      })
+  error_x = list(
+    type = "data",
+    array = change_data$change_moe,
+    visible = TRUE
+  ),
+  height = 510
+) |>
+  layout(
+    title = "Change between each country's first and latest reported periods",
+    xaxis = list(title = "Estimated change in residents", zeroline = TRUE),
+    yaxis = list(title = "Country of birth"),
+    showlegend = FALSE,
+    margin = list(l = 120)
+  ) |>
+  config(displayModeBar = FALSE, responsive = TRUE)
+```
+
+```{r}
+#| label: summary-cards
+#| echo: false
+#| message: false
+
+htmltools::div(
+  class = "metric-grid",
+  htmltools::div(
+    class = "metric-card",
+    htmltools::span(class = "metric-label", "Foreign-born population"),
+    htmltools::strong(scales::comma(latest_total)),
+    htmltools::span(
+      class = "metric-note",
+      paste0(
+        "Sum of ", represented_countries, " reported estimates in ",
+        latest_year, " · approx. ±", scales::comma(latest_total_moe)
+      )
     )
   ),
-  htmltools::tags$button(
-    id = "birthplace-all-countries",
-    type = "button",
-    "Show all countries"
+  htmltools::div(
+    class = "metric-card",
+    htmltools::span(class = "metric-label", "Birthplaces represented"),
+    htmltools::strong(paste(represented_countries, "of 15")),
+    htmltools::span(class = "metric-note", paste("Separate estimates in", latest_year))
   ),
-  htmltools::tags$button(
-    id = "birthplace-errors",
-    type = "button",
-    "Hide error bars"
+  htmltools::div(
+    class = "metric-card",
+    htmltools::span(class = "metric-label", "Largest reported birthplace"),
+    htmltools::strong(largest_country),
+    htmltools::span(
+      class = "metric-note",
+      paste(scales::comma(largest_estimate), "estimated residents")
+    )
   ),
-  htmltools::tags$p(
-    id = "birthplace-status",
-    role = "status",
-    "Showing 3 of 3 allowed selections."
-  ),
-  birthplace_plot
+  htmltools::div(
+    class = "metric-card metric-card-accent",
+    htmltools::span(class = "metric-label", "Most recent ACS period"),
+    htmltools::strong(latest_year),
+    htmltools::span(class = "metric-note", "Five-year estimate ending in this year")
+  )
 )
+```
+
+## Birthplace estimates over time
+
+Choose up to three republics in the list, or use the legend. Azerbaijan and Georgia have separate estimates starting in 2022; Estonia, Kyrgyzstan, Tajikistan, and Turkmenistan are not separately reported. Unavailable countries remain listed but disabled. Missing estimates are never treated as zero. Neighboring ACS five-year periods overlap.
+
+```{r}
+#| label: birthplace-chart
+#| echo: false
+#| message: false
+
+htmltools::tagList(
+  htmltools::div(
+    class = "chart-controls",
+    htmltools::tags$label(
+      `for` = "birthplace-series",
+      "Choose up to three countries (Ctrl/Cmd-click to select multiple):"
+    ),
+    htmltools::tags$select(
+      id = "birthplace-series",
+      multiple = "multiple",
+      size = "7",
+      lapply(post_soviet_countries, \(country) {
+      if (country %in% available_countries) {
+        htmltools::tags$option(value = country, country)
+      } else {
+        htmltools::tags$option(
+          value = country,
+          disabled = "disabled",
+          paste(country, "(not separately reported)")
+        )
+      }
+      })
+    ),
+    htmltools::tags$button(
+      id = "birthplace-all-countries",
+      type = "button",
+      "Show all reported countries"
+    ),
+    htmltools::tags$button(
+      id = "birthplace-errors",
+      type = "button",
+      "Hide error bars"
+    ),
+    htmltools::tags$p(
+      id = "birthplace-status",
+      role = "status",
+      "Showing 3 of 3 allowed selections."
+    )
+  ),
+  country_plot
+)
+```
+
+## Regional comparison
+
+Regions are project-defined groupings, not Census categories. The chart adds only countries with separate birthplace estimates in each period; coverage in the hover text makes partial totals visible. Older estimates therefore may cover fewer countries than newer ones.
+
+```{r}
+#| label: regional-chart
+#| echo: false
+#| message: false
+
+regional_plot
+```
+
+| Project-defined region | Included republics |
+|:--|:--|
+| Eastern Europe | Belarus, Moldova, Russia, Ukraine |
+| Central Asia | Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan, Uzbekistan |
+| Caucasus | Armenia, Azerbaijan, Georgia |
+| Baltics | Estonia, Latvia, Lithuania |
+
+Regional margins of error are approximate combinations of the reported country margins; see [About](about.qmd) for details.
+
+## Estimated population change
+
+The chart compares each country's earliest and latest available estimate. Bars show estimated change; whiskers show an approximate margin of error for the difference. Changes within or near the whiskers are especially uncertain. Even changes outside them are not definitive significance tests because ACS five-year periods overlap.
+
+```{r}
+#| label: change-chart
+#| echo: false
+#| message: false
+
+change_plot
 ```
