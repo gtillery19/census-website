@@ -2,11 +2,12 @@ library(tidyverse)
 library(tidycensus)
 
 post_soviet_countries <- c(
-  "Armenia", "Azerbaijan", "Belarus", "Georgia", "Kazakhstan",
-  "Latvia", "Lithuania", "Moldova", "Russia", "Ukraine", "Uzbekistan"
+  "Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
+  "Kazakhstan", "Kyrgyzstan", "Latvia", "Lithuania", "Moldova",
+  "Russia", "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"
 )
 
-years <- c(2013, 2018, 2023)
+years <- 2009:2024
 
 birthplace_estimates <- map_dfr(years, \(year) {
   country_variables <- load_variables(year, "acs5") |>

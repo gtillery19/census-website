@@ -4,7 +4,7 @@ title: "Post Soviet Population in Sarasota"
 
 ## Residents born in post-Soviet countries
 
-The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Hover over a point for its estimate and margin of error (MOE). Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.
+The Census Bureau's [B05006 table](https://data.census.gov/table?q=B05006) reports birthplace of the foreign-born population, not ethnicity or ancestry. Choose up to three countries or regions from the menu, or click the legend to show and hide lines. Use **Show all countries** to compare every country in one graph. Hover over a point for its estimate and margin of error (MOE). Annual ACS five-year estimates overlap, so adjacent points share much of the same data and should not be read as independent yearly counts. Regional totals combine countries that B05006 reports separately in each period, so earlier totals may not include every country. Combined regional MOEs are approximate.
 
 ```{r}
 #| label: birthplace-data
@@ -61,7 +61,7 @@ plot_data <- bind_rows(country_series, region_series)
 series_names <- unique(plot_data$series)
 initial_series <- c("Ukraine", "Russia", "Baltic States Region")
 
-birthplace_plot <- plot_ly()
+birthplace_plot <- plot_ly(height = 600)
 
 for (series_name in series_names) {
   series_data <- plot_data |>
@@ -110,8 +110,7 @@ birthplace_plot <- birthplace_plot |>
                  tickvals = years),
     yaxis = list(title = "Estimated residents", separatethousands = TRUE),
     legend = list(title = list(text = "Country or region")),
-    margin = list(b = 120),
-    height = 600
+    margin = list(b = 120)
   ) |>
   config(displayModeBar = FALSE, responsive = TRUE) |>
   htmlwidgets::onRender(
@@ -119,8 +118,14 @@ birthplace_plot <- birthplace_plot |>
       var selector = document.getElementById('birthplace-series');
       var status = document.getElementById('birthplace-status');
       var errorButton = document.getElementById('birthplace-errors');
+      var allCountriesButton = document.getElementById('birthplace-all-countries');
       var initial = ['Ukraine', 'Russia', 'Baltic States Region'];
       var current = initial.slice();
+      var savedSelection = initial.slice();
+      var allCountryNames = Array.from(
+        selector.querySelector('#birthplace-country-options').querySelectorAll('option')
+      ).map(function(option) { return option.value; });
+      var showingAllCountries = false;
       var showErrors = true;
 
       Array.from(selector.options).forEach(function(option) {
@@ -129,6 +134,15 @@ birthplace_plot <- birthplace_plot |>
 
       function updateStatus(message) {
         status.textContent = message;
+      }
+
+      function updateAllCountriesStatus() {
+        var visibleCountries = el.data.filter(function(trace) {
+          return allCountryNames.includes(trace.name) &&
+            trace.visible !== 'legendonly' && trace.visible !== false;
+        }).length;
+        updateStatus('Showing ' + visibleCountries + ' of ' +
+          allCountryNames.length + ' countries.');
       }
 
       function syncSelector() {
@@ -174,11 +188,44 @@ birthplace_plot <- birthplace_plot |>
         var visibleCount = el.data.filter(function(item) {
           return item.visible !== 'legendonly' && item.visible !== false;
         }).length;
-        if (!isVisible && visibleCount >= 3) {
+        if (!showingAllCountries && !isVisible && visibleCount >= 3) {
           updateStatus('Choose no more than three countries or regions.');
           return false;
         }
-        setTimeout(syncSelector, 0);
+        setTimeout(showingAllCountries ? updateAllCountriesStatus : syncSelector, 0);
+      });
+
+      allCountriesButton.addEventListener('click', function() {
+        if (showingAllCountries) {
+          showingAllCountries = false;
+          selector.disabled = false;
+          allCountriesButton.textContent = 'Show all countries';
+          current = savedSelection.slice();
+          Array.from(selector.options).forEach(function(option) {
+            option.selected = current.includes(option.value);
+          });
+          Plotly.restyle(el, {
+            visible: el.data.map(function(trace) {
+              return current.includes(trace.name) ? true : 'legendonly';
+            })
+          });
+          updateStatus('Showing ' + current.length + ' of 3 allowed selections.');
+          return;
+        }
+
+        savedSelection = current.slice();
+        showingAllCountries = true;
+        selector.disabled = true;
+        allCountriesButton.textContent = 'Show selected countries/regions';
+        Array.from(selector.options).forEach(function(option) {
+          option.selected = allCountryNames.includes(option.value);
+        });
+        Plotly.restyle(el, {
+          visible: el.data.map(function(trace) {
+            return allCountryNames.includes(trace.name) ? true : 'legendonly';
+          })
+        });
+        updateAllCountriesStatus();
       });
 
       updateStatus('Showing ' + current.length + ' of 3 allowed selections.');
@@ -195,6 +242,7 @@ htmltools::tagList(
     multiple = "multiple",
     size = "6",
     htmltools::tags$optgroup(
+      id = "birthplace-country-options",
       label = "Countries",
       lapply(sort(unique(birthplace_estimates$country)), \(country) {
         htmltools::tags$option(value = country, country)
@@ -206,6 +254,11 @@ htmltools::tagList(
         htmltools::tags$option(value = region, region)
       })
     )
+  ),
+  htmltools::tags$button(
+    id = "birthplace-all-countries",
+    type = "button",
+    "Show all countries"
   ),
   htmltools::tags$button(
     id = "birthplace-errors",
